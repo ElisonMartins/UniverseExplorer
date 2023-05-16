@@ -1,5 +1,5 @@
 "use client"; // This is a client component 
-import { useEffect, useState, useClient } from 'react'
+import { useEffect, useState} from 'react'
 
 function Home() {
   const [isConnected, setConnectedStatus] = useState(false)
