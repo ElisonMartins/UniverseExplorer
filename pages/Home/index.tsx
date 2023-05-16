@@ -30,7 +30,7 @@ function Home() {
           status: "Conectado",
           address: address,
         }
-        return obj
+        return obj as { connectedStatus: boolean; status: string; address?: any; }
       } catch (error) {
         return {
           connectedStatus: false,
