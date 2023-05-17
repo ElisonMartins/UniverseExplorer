@@ -1,10 +1,12 @@
 "use client"; // This is a client component 
 import { useEffect, useState } from 'react';
+import Web3 from 'web3';
 
 const Home = () => {
   const [isConnected, setConnected] = useState(false);
   const [status, setStatus] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
+  const [balance, setBalance] = useState('');
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -18,6 +20,7 @@ const Home = () => {
           setConnected(true);
           setWalletAddress(address);
           setStatus('Conectado');
+          getBalance(address);
         }
       } catch (error) {
         console.error(error);
@@ -28,6 +31,18 @@ const Home = () => {
     }
   };
 
+  const getBalance = async (address: string) => {
+    try {
+      const web3 = new Web3(window.ethereum);
+      const weiBalance = await web3.eth.getBalance(address);
+      const etherBalance = web3.utils.fromWei(weiBalance, 'ether');
+      setBalance(etherBalance);
+    } catch (error) {
+      console.error(error);
+      setBalance('Erro ao obter saldo');
+    }
+  };
+
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts) => {
@@ -35,10 +50,12 @@ const Home = () => {
           const address: string = accounts[0];
           setConnected(true);
           setWalletAddress(address);
+          getBalance(address);
         } else {
           setConnected(false);
           setWalletAddress('');
           setStatus('');
+          setBalance('');
         }
       });
     }
@@ -54,9 +71,10 @@ const Home = () => {
         {isConnected ? 'Conta Conectada' : 'Conectar'}
       </button>
       {isConnected && (
-        <p className="text-white mt-4">
-          Conta: {walletAddress.substring(0, 5)}...{walletAddress.substring(38)}
-        </p>
+        <div className="mt-4 text-white">
+          <p>Conta: {walletAddress.substring(0, 5)}...{walletAddress.substring(38)}</p>
+          <p>Saldo: {balance} ETH</p>
+        </div>
       )}
       {status && <p className="text-white mt-4">{status}</p>}
     </div>
