@@ -33,7 +33,7 @@ const Home = () => {
 
   const getBalance = async (address: string) => {
     try {
-      const web3 = new Web3(window.ethereum);
+      const web3 = new Web3(window.ethereum!);
       const weiBalance = await web3.eth.getBalance(address);
       const etherBalance = web3.utils.fromWei(weiBalance, 'ether');
       setBalance(etherBalance);
