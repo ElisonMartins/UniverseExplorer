@@ -1,84 +1,47 @@
-"use client"; // This is a client component import { useEffect, useState } from 'react';
-import { useEffect, useState } from 'react';
-import Web3 from 'web3';
+"use client"; // This is a client component
+import { useState, useEffect } from 'react';
 
-const Home = () => {
-  const [isConnected, setConnected] = useState(false);
-  const [status, setStatus] = useState('');
-  const [walletAddress, setWalletAddress] = useState('');
-  const [balance, setBalance] = useState('');
+const NASA_API_KEY = process.env.NEXT_PUBLIC_NASA_API_KEY;
 
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts',
-        });
+type ImageData = {
+  url: string;
+  title: string;
+};
 
-        if (accounts && accounts.length > 0) {
-          const address: string = accounts[0];
-          setConnected(true);
-          setWalletAddress(address);
-          setStatus('Conectado');
-          getBalance(address);
-        }
-      } catch (error) {
-        console.error(error);
-        setStatus('Erro durante a conexão com a conta');
-      }
-    } else {
-      setStatus('Instale o MetaMask no seu navegador');
-    }
-  };
-
-  const getBalance = async (address: string) => {
-    try {
-      const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
-      const weiBalance = await web3.eth.getBalance(address);
-      const etherBalance = web3.utils.fromWei(weiBalance, 'ether');
-      setBalance(etherBalance);
-    } catch (error) {
-      console.error(error);
-      setBalance('Erro ao obter saldo');
-    }
-  };
+const Nasa = () => {
+  const [imageData, setImageData] = useState<ImageData | null>(null);
 
   useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts) => {
-        if (accounts && accounts.length > 0) {
-          const address: string = accounts[0];
-          setConnected(true);
-          setWalletAddress(address);
-          getBalance(address);
-        } else {
-          setConnected(false);
-          setWalletAddress('');
-          setStatus('');
-          setBalance('');
-        }
-      });
-    }
+    const fetchImageData = async () => {
+      try {
+        const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${NASA_API_KEY}`);
+        const data = await response.json();
+        setImageData({
+          url: data.url,
+          title: data.title,
+        });
+      } catch (error) {
+        console.error('Error fetching image data:', error);
+      }
+    };
+
+    fetchImageData();
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-900">
-      <h1 className="text-4xl font-bold text-white mb-8">Conectar com o MetaMask</h1>
-      <button
-        onClick={connectWallet}
-        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none"
-      >
-        {isConnected ? 'Conta Conectada' : 'Conectar'}
-      </button>
-      {isConnected && (
-        <div className="mt-4 text-white">
-          <p>Conta: {walletAddress.substring(0, 5)}...{walletAddress.substring(38)}</p>
-          <p>Saldo: {balance} ETH</p>
-        </div>
+    <div className="max-w-md mx-auto mt-8 bg-white shadow-md rounded-lg overflow-hidden">
+      {imageData ? (
+        <>
+          <img className="object-cover h-64 w-full" src={imageData.url} alt={imageData.title} />
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-2">{imageData.title}</h2>
+          </div>
+        </>
+      ) : (
+        <p>Loading...</p>
       )}
-      {status && <p className="text-white mt-4">{status}</p>}
     </div>
   );
 };
 
-export default Home;
+export default Nasa;
