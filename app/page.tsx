@@ -1,9 +1,9 @@
-import Nasa from './../pages/Home'
+import Home from './../pages/Home'
 
 export default function app() {
   return (
     <div>
-      <Nasa/>
+      <Home />
     </div>
   )
 }
