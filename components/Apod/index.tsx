@@ -6,6 +6,7 @@ const NASA_API_KEY = process.env.NEXT_PUBLIC_NASA_API_KEY;
 type ImageData = {
   url: string;
   title: string;
+  explanation: string;
 };
 
 const Nasa = () => {
@@ -19,6 +20,7 @@ const Nasa = () => {
         setImageData({
           url: data.url,
           title: data.title,
+          explanation: data.explanation,
         });
       } catch (error) {
         console.error('Error fetching image data:', error);
@@ -32,9 +34,19 @@ const Nasa = () => {
     <div className="mx-10 mt-8 text-center h-90 w-64 bg-white shadow-md rounded-lg overflow-hidden">
       {imageData ? (
         <>
-        <h2 className="text-xl font-bold mb-2">Imagem do dia</h2>
-        <img className="object-cover h-64 w-64" src={imageData.url} alt={imageData.title} />
-        <h2 className="text-lg mb-2">{imageData.title}</h2>
+
+          <div className="max-w-sm rounded overflow-hidden shadow-lg">
+            <img className="w-full" src={imageData.url} alt={imageData.title} />
+            <div className="px-6 py-4">
+              <div className="font-bold text-xl mb-2">Imagem do dia:<br />{imageData.title}</div>
+              <p className="text-gray-700 text-base">
+                {imageData.explanation.length > 200
+                  ? `${imageData.explanation.slice(0, 200)}...`
+                  : imageData.explanation}
+              </p>
+
+            </div>
+          </div>
         </>
       ) : (
         <p>Loading...</p>
